@@ -1,0 +1,71 @@
+R version 4.5.1 (2025-06-13 ucrt)
+Platform: x86_64-w64-mingw32/x64
+Running under: Windows 11 x64 (build 26100)
+
+Matrix products: default
+  LAPACK version 3.12.1
+
+locale:
+[1] LC_COLLATE=Spanish_Colombia.utf8 
+[2] LC_CTYPE=Spanish_Colombia.utf8   
+[3] LC_MONETARY=Spanish_Colombia.utf8
+[4] LC_NUMERIC=C                     
+[5] LC_TIME=Spanish_Colombia.utf8    
+
+time zone: America/Bogota
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets 
+[6] methods   base     
+
+other attached packages:
+ [1] scales_1.4.0           countrycode_1.6.1     
+ [3] readxl_1.4.5           DIDmultiplegtDYN_2.1.2
+ [5] here_1.0.1             lubridate_1.9.4       
+ [7] forcats_1.0.0          stringr_1.5.1         
+ [9] dplyr_1.1.4            purrr_1.1.0           
+[11] readr_2.1.5            tidyr_1.3.1           
+[13] tibble_3.3.0           ggplot2_4.0.1         
+[15] tidyverse_2.0.0       
+
+loaded via a namespace (and not attached):
+ [1] tidyselect_1.2.1   farver_2.1.2      
+ [3] S7_0.2.0           fastmap_1.2.0     
+ [5] pacman_0.5.1       digest_0.6.37     
+ [7] timechange_0.3.0   lifecycle_1.0.4   
+ [9] magrittr_2.0.3     compiler_4.5.1    
+[11] rlang_1.1.6        tools_4.5.1       
+[13] utf8_1.2.6         data.table_1.17.8 
+[15] collapse_2.1.3     knitr_1.50        
+[17] labeling_0.4.3     htmlwidgets_1.6.4 
+[19] bit_4.6.0          RColorBrewer_1.1-3
+[21] abind_1.4-8        withr_3.0.2       
+[23] grid_4.5.1         rgl_1.3.24        
+[25] xtable_1.8-4       extrafontdb_1.0   
+[27] MASS_7.3-65        cli_3.6.5         
+[29] rmarkdown_2.29     crayon_1.5.3      
+[31] ragg_1.4.0         miscTools_0.6-28  
+[33] rnames_1.0.1       generics_0.1.4    
+[35] rstudioapi_0.17.1  tzdb_0.5.0        
+[37] bdsmatrix_1.3-7    parallel_4.5.1    
+[39] cellranger_1.1.0   base64enc_0.1-3   
+[41] vctrs_0.6.5        sandwich_3.1-1    
+[43] jsonlite_2.0.0     carData_3.0-5     
+[45] car_3.1-3          hms_1.1.3         
+[47] bit64_4.6.0-1      plm_2.6-6         
+[49] Formula_1.2-5      systemfonts_1.3.1 
+[51] glue_1.8.0         matlib_1.0.0      
+[53] cowplot_1.2.0      stringi_1.8.7     
+[55] gtable_0.3.6       lmtest_0.9-40     
+[57] extrafont_0.19     pillar_1.11.0     
+[59] htmltools_0.5.8.1  R6_2.6.1          
+[61] maxLik_1.5-2.1     textshaping_1.0.1 
+[63] Rdpack_2.6.4       rprojroot_2.1.0   
+[65] vroom_1.6.5        evaluate_1.0.4    
+[67] lattice_0.22-7     haven_2.5.5       
+[69] rbibutils_2.3      openxlsx_4.2.8    
+[71] Rcpp_1.1.0         zip_2.3.3         
+[73] nlme_3.1-168       Rttf2pt1_1.3.12   
+[75] xfun_0.52          zoo_1.8-14        
+[77] pkgconfig_2.0.3   
