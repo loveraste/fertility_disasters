@@ -1,9 +1,3 @@
----
-editor_options: 
-  markdown: 
-    wrap: 72
----
-
 # Data Sources and Construction
 
 This project uses country-year data on fertility and exposure to natural
