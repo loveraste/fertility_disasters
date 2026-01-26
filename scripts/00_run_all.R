@@ -11,9 +11,6 @@ pacman::p_load(here)
 # ---- project root sanity check ----
 message("Project root: ", here::here())
 
-# ---- optional: session info for reproducibility ----
-writeLines(capture.output(sessionInfo()), here("outputs", "sessionInfo.txt"))
-
 # ---- helper: run scripts with logging ----
 run_script <- function(path) {
   stopifnot(file.exists(path))

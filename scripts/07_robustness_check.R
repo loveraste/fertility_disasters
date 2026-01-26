@@ -33,7 +33,7 @@ my_theme <- theme(
 
 
 #---------------------------------#
-# Helpers: y-limits (same as MAIN) ----
+# Helpers ----
 #---------------------------------#
 
 round_up_step <- function(x, step = 0.005) {
@@ -68,10 +68,9 @@ compute_y_limits_from_df <- function(df, treatments, step = 0.005) {
 # Plot builders ----
 #---------------------------------#
 
-# (A) Dual line: climate vs non-climate (like MAIN)
 plot_event_study_dual_from_df <- function(df, treatment1, treatment2,
                                           label1 = "Climate", label2 = "Non-climate",
-                                          color1 = "black", color2 = "#b2182b",
+                                          color1 = "black", color2 = "gray",
                                           y_limits = NULL, title = NULL, save_path = NULL) {
   
   df_plot <- df %>%
@@ -82,7 +81,8 @@ plot_event_study_dual_from_df <- function(df, treatment1, treatment2,
         treatment == treatment2 ~ label2,
         TRUE ~ NA_character_
       )
-    )
+    ) %>% 
+    arrange(desc(group)) 
   
   g <- ggplot(df_plot, aes(x = event_time, y = estimate, color = group)) +
     geom_point(size = 2) +
@@ -96,7 +96,8 @@ plot_event_study_dual_from_df <- function(df, treatment1, treatment2,
       color = "",
       title = title
     ) +
-    scale_color_manual(values = setNames(c(color1, color2), c(label1, label2))) +
+    scale_color_manual(values = setNames(c(color1, color2), c(label1, label2)),
+                       breaks = c(label1, label2)) +
     theme_classic() +
     my_theme +
     theme(panel.grid.major.y = element_line(color = "gray85"))
@@ -108,7 +109,7 @@ plot_event_study_dual_from_df <- function(df, treatment1, treatment2,
   g
 }
 
-# (B) Single line: one treatment (used for hazard-specific ES)
+# (B) Single line: one treatment (used for hazard-specific)
 plot_event_study_single_from_df <- function(df, trt,
                                             color = "black",
                                             y_limits = NULL, title = NULL, save_path = NULL) {
@@ -139,52 +140,81 @@ plot_event_study_single_from_df <- function(df, trt,
   g
 }
 
+
 graph_windows <- function(df_win,
-                          prefix1, prefix2,
-                          label1 = "Climate", label2 = "Non-climate",
+                          trt,
+                          label = "Climate",
                           event_t = 5,
+                          color = "black",
                           y_limits = NULL,
                           save_path) {
   
   df_all <- df_win %>%
-    filter(treatment %in% c(prefix1, prefix2),
-           event_time == event_t) %>%
+    filter(treatment == trt, event_time == event_t) %>%
     mutate(
       window = paste0(window_start, "-", window_end),
-      indicator = case_when(
-        treatment == prefix1 ~ label1,
-        treatment == prefix2 ~ label2,
-        TRUE ~ NA_character_
-      ),
       point_estimate = estimate,
       lb_CI_95 = ci_low,
       up_CI_95 = ci_high
     ) %>%
     arrange(window_start) %>%
-    mutate(
-      window = factor(window, levels = unique(window)),
-      indicator = factor(indicator, levels = c(label1, label2))
+    mutate(window = factor(window, levels = unique(window)))
+  
+  g <- ggplot(df_all, aes(x = window, y = point_estimate)) +
+    geom_point(size = 2, color = color) +
+    geom_errorbar(aes(ymin = lb_CI_95, ymax = up_CI_95),
+                  width = 0.3, color = color) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+    { if (!is.null(y_limits)) coord_cartesian(ylim = y_limits) } +
+    labs(x = "Time window", y = paste("Effect at t =", event_t)) +
+    theme_classic() +
+    my_theme +
+    theme(
+      axis.text.x = element_text(angle = 90, hjust = 1),
+      panel.grid.major.y = element_line(color = "gray85")
     )
   
-  if (nrow(df_all) > 0) {
-    g <- ggplot(df_all, aes(x = window, y = point_estimate, color = indicator)) +
-      geom_point(position = position_dodge(width = 0.5), size = 2) +
-      geom_errorbar(aes(ymin = lb_CI_95, ymax = up_CI_95),
-                    width = 0.3, position = position_dodge(width = 0.5)) +
-      geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
-      labs(x = "Time window", y = paste("Effect at t =", event_t), color = NULL) +
-      { if (!is.null(y_limits)) coord_cartesian(ylim = y_limits) } +
-      theme_classic() +
-      my_theme +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-      theme(panel.grid.major.y = element_line(color = "gray85")) +
-      scale_color_manual(values = c("black", "#b2182b"))
-    
-    ggsave(save_path, g, width = 10, height = 6)
-    return(g)
-  }
+  ggsave(save_path, g, width = 10, height = 6)
+  return(g)
+}
+
+
+graph_income <- function(df_income,
+                         trt,
+                         label = "Climate",
+                         event_t = 5,
+                         color = "black",
+                         y_limits = NULL,
+                         save_path) {
   
-  return(NULL)
+  df_all <- df_income %>%
+    filter(treatment == trt, event_time == event_t) %>%
+    mutate(
+      group = case_when(
+        subgroup == "Poor" ~ "Low income",
+        subgroup == "Rich" ~ "High income",
+        TRUE ~ subgroup
+      ),
+      group = factor(group, levels = c("Low income", "High income")),
+      point_estimate = estimate,
+      lb_CI_95 = ci_low,
+      up_CI_95 = ci_high
+    )
+  
+  g <- ggplot(df_all, aes(x = fct_rev(group), y = point_estimate)) +
+    geom_point(size = 2, color = color) +
+    geom_errorbar(aes(ymin = lb_CI_95, ymax = up_CI_95),
+                  width = 0.4, color = color) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+    coord_flip(ylim = y_limits) +
+    labs(x = "",
+         y = "Estimated effect on fertility") +
+    theme_classic() +
+    my_theme +
+    theme(panel.grid.major.x = element_line(color = "gray85"))
+  
+  ggsave(filename = save_path, plot = g, width = 8, height = 4)
+  g
 }
 
 #---------------------------------#
@@ -198,8 +228,10 @@ df_hazard <- results$by_disaster_category
 df_income <- results$by_income_group
 
 #------------------------------------#
-#  Hazard type (t=10) ----
+#  Hazard type ----
 # -----------------------------------#
+
+disaster_order <- c("Geophysical", "Biological", "Wildfire", "Cold Wave", "Heat Wave", "Storm", "Hydrological", "Drought")
 
 df_h10 <- df_hazard %>%
   filter(event_time == 10) %>%
@@ -218,10 +250,16 @@ df_h10 <- df_hazard %>%
     ),
     climatic = factor(climatic, levels = c("Climate", "Non-climate")),
     measure  = factor(measure, levels = c("Affected rate", "Death rate")),
-    disaster = factor(disaster, levels = sort(unique(disaster), decreasing = TRUE))
-  )
+    disaster = factor(disaster, levels = disaster_order),
+    color_key = case_when(
+      climatic == "Climate"     & measure == "Affected rate" ~ "clim_aff",
+      climatic == "Climate"     & measure == "Death rate"    ~ "clim_death",
+      climatic == "Non-climate" & measure == "Affected rate" ~ "nonclim_aff",
+      climatic == "Non-climate" & measure == "Death rate"    ~ "nonclim_death",
+      TRUE ~ NA_character_
+    ))
 
-g_hazard_t10 <- ggplot(df_h10, aes(x = disaster, y = estimate, color = measure)) +
+g_hazard_t10 <- ggplot(df_h10, aes(x = disaster, y = estimate, color = color_key)) +
   geom_point(position = position_dodge(width = 0.6), size = 2.5) +
   geom_errorbar(
     aes(ymin = ci_low, ymax = ci_high),
@@ -229,59 +267,262 @@ g_hazard_t10 <- ggplot(df_h10, aes(x = disaster, y = estimate, color = measure))
     position = position_dodge(width = 0.6)
   ) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
-  facet_grid(climatic ~ ., scales = "free_y", space = "free_y", switch = "y") +
+  facet_wrap(~ climatic, ncol = 2) +
   coord_flip() +
   labs(x = "", y = "Estimated effect on fertility", color = "") +
-  scale_color_manual(values = c("Affected rate" = "black", "Death rate" = "#b2182b")) +
+  scale_color_manual(
+    values = c(
+      clim_aff     = "black",
+      clim_death   = "darkblue",  
+      nonclim_aff  = "grey",
+      nonclim_death= "#7FBADC"   
+    ),
+    breaks = c("clim_aff","nonclim_aff", "clim_death", "nonclim_death"),
+    labels = c(
+      "",
+      "Affected rate    ",
+      "",
+      "Death rate"
+    ))+
   theme_classic() +
   my_theme +
-  theme(panel.grid.major.x = element_line(color = "gray85"))
+  theme(
+    panel.grid.major.x = element_line(color = "gray85"),
+    strip.text = element_text(size = 15)
+  )
 
-ggsave(filename = here(paths$out_root, "effects_by_hazard_t10.png"), plot = g_hazard_t5, width = 10, height = 8)
+ggsave(filename = here(paths$out_root, "effects_by_hazard_t10.png"), plot = g_hazard_t10, width = 10, height = 8)
 
 g_hazard_t10
 
 #---------------------------------#
-# Windows plots (t = 10) ----
+# Windows plots  ----
 #---------------------------------#
 
-win_treatments_t10 <- c(
+# Climate (t = 10)
+win_treatments <- c(
   "ln_affected_rate_climate_std",
+  "ln_death_rate_climate_std"
+) %>% intersect(unique(df_win$treatment))
+
+ylims_win_t10 <- compute_y_limits_from_df(
+  df = df_win %>% filter(event_time == 10),
+  treatments = win_treatments,
+  step = 0.005
+)
+
+g_win_affected_t10_climate <- graph_windows(
+  df_win    = df_win,
+  trt       = "ln_affected_rate_climate_std",
+  label     = "Climate",
+  event_t   = 10,
+  color     = "black",
+  y_limits  = ylims_win_t10,
+  save_path = here(paths$out_root, "window_affected_std_climate_t10.png")
+)
+
+g_win_death_t10_climate <- graph_windows(
+  df_win    = df_win,
+  trt       = "ln_death_rate_climate_std",
+  label     = "Climate",
+  event_t   = 10,
+  color     = "darkblue", 
+  y_limits  = ylims_win_t10,
+  save_path = here(paths$out_root, "window_death_std_climate_t10.png")
+)
+
+g_win_affected_t10_climate
+g_win_death_t10_climate
+
+
+# Non climate (t = 5 and t = 10)
+# t = 5
+win_treatments <- c(
   "ln_affected_rate_no_climate_std",
-  "ln_death_rate_climate_std",
+  "ln_death_rate_no_climate_std"
+) %>% intersect(unique(df_win$treatment))
+
+ylims_win_t5 <- compute_y_limits_from_df(
+  df = df_win %>% filter(event_time == 5),
+  treatments = win_treatments,
+  step = 0.005
+)
+
+g_win_affected_t5_nonclimate <- graph_windows(
+  df_win    = df_win,
+  trt       = "ln_affected_rate_no_climate_std",
+  label     = "Non-climate",
+  event_t   = 5,
+  color     = "grey",
+  y_limits  = ylims_win_t5,
+  save_path = here(paths$out_root, "window_affected_std_nonclimate_t5.png")
+)
+
+g_win_death_t5_nonclimate <- graph_windows(
+  df_win    = df_win,
+  trt       = "ln_death_rate_no_climate_std",
+  label     = "Non-climate",
+  event_t   = 5,
+  color     = "#7FBADC", 
+  y_limits  = ylims_win_t5,
+  save_path = here(paths$out_root, "window_death_std_nonclimate_t5.png")
+)
+
+g_win_affected_t5_nonclimate
+g_win_death_t5_nonclimate
+
+# t = 10
+win_treatments <- c(
+  "ln_affected_rate_no_climate_std",
   "ln_death_rate_no_climate_std"
 ) %>% intersect(unique(df_win$treatment))
 
 ylims_win_t10 <- compute_y_limits_from_df(
   df = df_win %>% filter(event_time == 10),
-  treatments = win_treatments_t10,
+  treatments = win_treatments,
   step = 0.005
 )
 
-g_win_affected_t10 <- graph_windows(
+g_win_affected_t10_nonclimate <- graph_windows(
   df_win    = df_win,
-  prefix1   = "ln_affected_rate_climate_std",
-  prefix2   = "ln_affected_rate_no_climate_std",
-  label1    = "Climate",
-  label2    = "Non-climate",
+  trt       = "ln_affected_rate_no_climate_std",
+  label     = "Non-climate",
   event_t   = 10,
+  color     = "grey",
   y_limits  = ylims_win_t10,
-  save_path = here(paths$out_root, "window_ln_affected_rate_std_effect_comparison_10.png")
+  save_path = here(paths$out_root, "window_affected_std_nonclimate_t10.png")
 )
 
-g_win_death_t10 <- graph_windows(
+g_win_death_t10_nonclimate <- graph_windows(
   df_win    = df_win,
-  prefix1   = "ln_death_rate_climate_std",
-  prefix2   = "ln_death_rate_no_climate_std",
-  label1    = "Climate",
-  label2    = "Non-climate",
+  trt       = "ln_death_rate_no_climate_std",
+  label     = "Non-climate",
   event_t   = 10,
+  color     = "#7FBADC", 
   y_limits  = ylims_win_t10,
-  save_path = here(paths$out_root, "window_ln_death_rate_std_effect_comparison_10.png")
+  save_path = here(paths$out_root, "window_death_std_nonclimate_t10.png")
 )
 
-g_win_affected_t10
-g_win_death_t10
+g_win_affected_t10_nonclimate
+g_win_death_t10_nonclimate
+
+#---------------------------------#
+# Income groups  ----
+#---------------------------------#
+
+# Climate (t = 10)
+income_treatments <- c(
+  "ln_affected_rate_climate_std",
+  "ln_death_rate_climate_std"
+) %>% intersect(unique(df_income$treatment))
+
+ylims_income_t10 <- compute_y_limits_from_df(
+  df = df_income %>% filter(event_time == 10),
+  treatments = income_treatments,
+  step = 0.005
+)
+
+# Affected (t = 10)
+g_income_affected_t10_climate <- graph_income(
+  df_income  = df_income,
+  trt        = "ln_affected_rate_climate_std",
+  label      = "Climate",
+  event_t    = 10,
+  color      = "black",
+  y_limits   = ylims_income_t10,
+  save_path  = here(paths$out_root, "income_affected_climate_t10.png")
+)
+
+#Death (t = 10)
+g_income_death_t10_climate <- graph_income(
+  df_income  = df_income,
+  trt        = "ln_death_rate_climate_std",
+  label      = "Climate",
+  event_t    = 10,
+  color      = "darkblue",   
+  y_limits   = ylims_income_t10,
+  save_path  = here(paths$out_root, "income_death_climate_t10.png")
+)
+
+
+g_income_affected_t10_climate
+g_income_death_t10_climate
+
+# Non climate (t = 5 and t = 10)
+# t = 5
+income_treatments <- c(
+  "ln_affected_rate_no_climate_std",
+  "ln_death_rate_no_climate_std"
+) %>% intersect(unique(df_income$treatment))
+
+ylims_income_t5 <- compute_y_limits_from_df(
+  df = df_income %>% filter(event_time == 5),
+  treatments = income_treatments,
+  step = 0.005
+)
+
+# Affected (t = 5)
+g_income_affected_t5_nonclimate <- graph_income(
+  df_income  = df_income,
+  trt        = "ln_affected_rate_no_climate_std",
+  label      = "Non-climate",
+  event_t    = 5,
+  color      = "gray",
+  y_limits   = ylims_income_t5,
+  save_path  = here(paths$out_root, "income_affected_nonclimate_t5.png")
+)
+
+#Death (t = 5)
+g_income_death_t5_nonclimate <- graph_income(
+  df_income  = df_income,
+  trt        = "ln_death_rate_no_climate_std",
+  label      = "Non-climate",
+  event_t    = 5,
+  color      = "#7FBADC", 
+  y_limits   = ylims_income_t5,
+  save_path  = here(paths$out_root, "income_death_nonclimate_t5.png")
+)
+
+
+g_income_affected_t5_nonclimate
+g_income_death_t5_nonclimate
+
+# t = 10
+income_treatments <- c(
+  "ln_affected_rate_no_climate_std",
+  "ln_death_rate_no_climate_std"
+) %>% intersect(unique(df_income$treatment))
+
+ylims_income_t10 <- compute_y_limits_from_df(
+  df = df_income %>% filter(event_time == 10),
+  treatments = income_treatments,
+  step = 0.005
+)
+
+# Affected (t = 10)
+g_income_affected_t10_nonclimate <- graph_income(
+  df_income  = df_income,
+  trt        = "ln_affected_rate_no_climate_std",
+  label      = "Non-climate",
+  event_t    = 10,
+  color      = "gray",
+  y_limits   = ylims_income_t10,
+  save_path  = here(paths$out_root, "income_affected_nonclimate_t10.png")
+)
+
+#Death (t = 10)
+g_income_death_t10_nonclimate <- graph_income(
+  df_income  = df_income,
+  trt        = "ln_death_rate_no_climate_std",
+  label      = "Non-climate",
+  event_t    = 10,
+  color      = "#7FBADC", 
+  y_limits   = ylims_income_t10,
+  save_path  = here(paths$out_root, "income_death_nonclimate_t10.png")
+)
+
+g_income_affected_t10_nonclimate
+g_income_death_t10_nonclimate
 
 #------------------------------------------------------------------------------#
 #  Rolling windows: for each window -> 2 plots (affected & death) ----
@@ -318,7 +559,7 @@ for (i in seq_len(nrow(windows_tbl))) {
     treatment1 = "ln_affected_rate_climate_std",
     treatment2 = "ln_affected_rate_no_climate_std",
     label1 = "Climate", label2 = "Non-climate",
-    color1 = "black", color2 = "#b2182b",
+    color1 = "black", color2 = "gray",
     y_limits = ylims_w,
     save_path = here(paths$out_root, paste0("win_", tag_window, "_affected.png"))
   )
@@ -329,7 +570,7 @@ for (i in seq_len(nrow(windows_tbl))) {
     treatment1 = "ln_death_rate_climate_std",
     treatment2 = "ln_death_rate_no_climate_std",
     label1 = "Climate", label2 = "Non-climate",
-    color1 = "black", color2 = "#b2182b",
+    color1 = "darkblue", color2 = "#7FBADC",
     y_limits = ylims_w,
     save_path = here(paths$out_root, paste0("win_", tag_window, "_death.png"))
   )
@@ -338,8 +579,12 @@ for (i in seq_len(nrow(windows_tbl))) {
 # -----------------------------------------------------------------------------#
 # Hazard type: for each hazard -> 2 plots (affected & death) ----
 # -----------------------------------------------------------------------------#
+climate_hazards <- c(
+  "Drought", "Hydrological", "Storm",
+  "Heat Wave", "Cold Wave", "Wildfire"
+)
 
-# hazard name parsed exactly like your old code
+# hazard name parsed
 df_hazard_tagged <- df_hazard %>%
   mutate(
     measure = if_else(str_detect(treatment, "affected"), "affected", "death"),
@@ -348,12 +593,24 @@ df_hazard_tagged <- df_hazard %>%
       str_remove("^ln_death_rate_") %>%
       str_remove("_std$") %>%
       str_replace_all("_", " ") %>%
-      str_to_title()
+      str_to_title(),
+    climatic = if_else(hazard %in% climate_hazards, "Climate", "Non-climate")
   )
 
 hazard_tbl <- df_hazard_tagged %>%
   distinct(hazard) %>%
   arrange(hazard)
+
+colors_climate <- list(
+  affected = "black",
+  death    = "darkblue"
+)
+
+colors_nonclimate <- list(
+  affected = "grey",
+  death    = "#7FBADC"
+)
+
 
 for (i in seq_len(nrow(hazard_tbl))) {
   
@@ -365,18 +622,35 @@ for (i in seq_len(nrow(hazard_tbl))) {
   tr_aff <- df_hz %>% filter(measure == "affected") %>% distinct(treatment) %>% pull(treatment)
   tr_dth <- df_hz %>% filter(measure == "death") %>% distinct(treatment) %>% pull(treatment)
   
-  # skip if something is missing
   if (length(tr_aff) != 1 || length(tr_dth) != 1) next
   
-  # shared limits within hazard (affected vs death)
-  ylims_hz <- compute_y_limits_from_df(df_hz, treatments = c(tr_aff, tr_dth), step = 0.005)
+  # identify hazard type
+  hz_type <- df_hz$climatic[1]
+  
+  # pick colors based on climate vs non-climate
+  col_aff <- if (hz_type == "Climate") {
+    colors_climate$affected
+  } else {
+    colors_nonclimate$affected
+  }
+  
+  col_dth <- if (hz_type == "Climate") {
+    colors_climate$death
+  } else {
+    colors_nonclimate$death
+  }
+  
+  # shared limits
+  ylims_hz <- compute_y_limits_from_df(
+    df_hz, treatments = c(tr_aff, tr_dth), step = 0.005
+  )
   
   hz_tag <- hz %>% str_replace_all(" ", "_") %>% str_to_lower()
   
   plot_event_study_single_from_df(
     df = df_hz,
     trt = tr_aff,
-    color = "black",
+    color = col_aff,
     y_limits = ylims_hz,
     save_path = here(paths$out_root, paste0("hazard_", hz_tag, "_affected.png"))
   )
@@ -384,7 +658,7 @@ for (i in seq_len(nrow(hazard_tbl))) {
   plot_event_study_single_from_df(
     df = df_hz,
     trt = tr_dth,
-    color = "#b2182b",
+    color = col_dth,
     y_limits = ylims_hz,
     save_path = here(paths$out_root, paste0("hazard_", hz_tag, "_death.png"))
   )
@@ -430,7 +704,7 @@ for (i in seq_len(nrow(income_tbl))) {
     treatment1 = "ln_affected_rate_climate_std",
     treatment2 = "ln_affected_rate_no_climate_std",
     label1 = "Climate", label2 = "Non-climate",
-    color1 = "black", color2 = "#b2182b",
+    color1 = "black", color2 = "gray",
     y_limits = ylims_sg,
     save_path = here(paths$out_root, paste0("income_", sg_tag, "_affected.png"))
   )
@@ -440,7 +714,7 @@ for (i in seq_len(nrow(income_tbl))) {
     treatment1 = "ln_death_rate_climate_std",
     treatment2 = "ln_death_rate_no_climate_std",
     label1 = "Climate", label2 = "Non-climate",
-    color1 = "black", color2 = "#b2182b",
+    color1 = "darkblue", color2 = "#7FBADC",
     y_limits = ylims_sg,
     save_path = here(paths$out_root, paste0("income_", sg_tag, "_death.png"))
   )
