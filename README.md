@@ -46,7 +46,7 @@ Processed datasets required to reproduce all results are provided in this reposi
 | Data.Name | Data.Files | Location | Provided | Citation |
 |----|----|----|----|----|
 | “United Nations World Population Prospects 2024” | WPP2024_GEN_F01_DEMOGRAPHIC_INDICATORS_COMPACT.xlsx | `data/raw/` | TRUE | United Nations (2024) |
-| “EM-DAT Natural Disasters Database. CRED” | emdat_natural_1950_2023.xlsx | `data/raw/` | FALSE | Guha-Sapir et al. (2024) |
+| “EM-DAT Natural Disasters Database. CRED” | emdat_natural_1950_2023.xlsx | `data/raw/` | TRUE | Guha-Sapir et al. (2024) |
 | “World Bank Income Classification” | CLASS.xlsx | `data/raw/` | TRUE | World Bank (2024) |
 
 ### Details on each Data Source

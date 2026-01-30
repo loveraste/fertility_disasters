@@ -6,4 +6,3 @@
 .quarto
 .RData
 .gitignore
-data/raw/emdat_natural_1950_2023.xlsx
