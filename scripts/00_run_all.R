@@ -5,11 +5,19 @@
 # Outputs: data/processed/*.rds, outputs/figures/*, outputs/estimates/*, etc.
 # -----------------------------------------------------------------------------#
 
-# ---- packages ----
+# ---- renv + packages ----
+if (file.exists("renv.lock")) {
+  if (!requireNamespace("renv", quietly = TRUE)) {
+    install.packages("renv", repos = "https://cloud.r-project.org")
+  }
+  # Safe to run; renv will skip what is already installed
+  renv::restore(prompt = FALSE)
+}
+
 pacman::p_load(here)
 
-# ---- project root sanity check ----
-message("Project root: ", here::here())
+# OS / headless graphics guard (macOS OpenGL/rgl)
+Sys.setenv(RGL_USE_NULL = "TRUE")
 
 # ---- helper: run scripts with logging ----
 run_script <- function(path) {

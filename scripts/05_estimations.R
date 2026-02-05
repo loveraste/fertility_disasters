@@ -239,7 +239,6 @@ res_income <- map_dfr(groups, \(g) {
 
 results <- list(
   meta = list(
-    created_at = as.character(Sys.time()),
     model = "did_multiplegt_dyn (DIDmultiplegtDYN)",
     outcome = "fertility_rate",
     effects = 15,

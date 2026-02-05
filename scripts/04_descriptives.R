@@ -17,7 +17,7 @@ paths <- list(
   dis_clim  = here("data", "processed", "disasters_climatic.rds"),
   dis_cat   = here("data", "processed", "disasters_category.rds"),
   out_fig   = here("outputs", "figures"),
-  out_tab   = here("outputs", "tables", "unified_disaster_stats.tex")
+  out_tab   = here("outputs", "tables")
 )
 
 # ---- theme ----
@@ -108,7 +108,7 @@ p_fert <- ggplot() +
   theme_ts +
   scale_x_continuous(expand = c(0, 0), limits = c(1950, 2023))
 
-ggsave(filename = here(paths$out_fig, "fertility_rate.png"), plot = p_fert, width = 12, height = 8)
+ggsave(filename = here(paths$out_fig, "figure_1_fertility_trends.png"), plot = p_fert, width = 12, height = 8)
 
 #---------------------------------------#
 # Disasters: climate vs no_climate ----
@@ -156,12 +156,22 @@ world_disaster_no_climate <- disasters_country_no_climate %>%
   arrange(year)
 
 # --- Climate plots ---
+
+plot_country_ts(
+  df_country = disasters_country_climate,
+  df_world   = world_disaster_climate,
+  yvar       = "total",
+  ylab       = "Number of disasters",
+  out_file   = here(paths$out_fig, "figure_2a_total_climate.png"),
+  y_limits   = c(0, 5)
+)
+
 plot_country_ts(
   df_country = disasters_country_climate,
   df_world   = world_disaster_climate,
   yvar       = "affected_rate",
   ylab       = "Affected rate",
-  out_file   = here(paths$out_fig, "affected_rate_country_ts_climate.png"),
+  out_file   = here(paths$out_fig, "figure_2c_affected_climate.png"),
   y_limits   = c(0, 5000)
 )
 
@@ -170,26 +180,26 @@ plot_country_ts(
   df_world   = world_disaster_climate,
   yvar       = "death_rate",
   ylab       = "Death rate",
-  out_file   = here(paths$out_fig, "death_rate_country_ts_climate.png"),
+  out_file   = here(paths$out_fig, "figure_2e_death_climate.png"),
   y_limits   = c(0, 20)
-)
-
-plot_country_ts(
-  df_country = disasters_country_climate,
-  df_world   = world_disaster_climate,
-  yvar       = "total",
-  ylab       = "Number of disasters",
-  out_file   = here(paths$out_fig, "total_disasters_country_ts_climate.png"),
-  y_limits   = c(0, 5)
 )
 
 # --- No-climate plots ---
 plot_country_ts(
   df_country = disasters_country_no_climate,
   df_world   = world_disaster_no_climate,
+  yvar       = "total",
+  ylab       = "Number of disasters",
+  out_file   = here(paths$out_fig, "figure_2b_total_non_climate.png"),
+  y_limits   = c(0, 5)
+)
+
+plot_country_ts(
+  df_country = disasters_country_no_climate,
+  df_world   = world_disaster_no_climate,
   yvar       = "affected_rate",
   ylab       = "Affected rate",
-  out_file   = here(paths$out_fig, "affected_rate_country_ts_no_climate.png"),
+  out_file   = here(paths$out_fig, "figure_2d_affected_non_climate.png"),
   y_limits   = c(0, 1000)
 )
 
@@ -198,17 +208,8 @@ plot_country_ts(
   df_world   = world_disaster_no_climate,
   yvar       = "death_rate",
   ylab       = "Death rate",
-  out_file   = here(paths$out_fig, "death_rate_country_ts_no_climate.png"),
+  out_file   = here(paths$out_fig, "figure_2f_death_non_climate.png"),
   y_limits   = c(0, 20)
-)
-
-plot_country_ts(
-  df_country = disasters_country_no_climate,
-  df_world   = world_disaster_no_climate,
-  yvar       = "total",
-  ylab       = "Number of disasters",
-  out_file   = here(paths$out_fig, "total_disasters_country_ts_no_climate.png"),
-  y_limits   = c(0, 5)
 )
 
 # ---------------------------------------------------------------------------#
@@ -280,19 +281,31 @@ final_table <- bind_rows(summary_all, summary_group, summary_category) %>%
   )
 
 ord_type <- c("All", "Climatic", "Non-climatic", "Other")
+ord_category <- c(
+  "Cold Wave", "Drought", "Heat Wave", "Hydrological",
+  "Storm", "Wildfire", "Biological", "Geophysical"
+)
+
 final_table <- final_table %>%
   mutate(
     order_group = factor(group, levels = ord_type),
-    order_sub   = ifelse(category == "", 0, 1)
+    order_sub   = ifelse(category == "", 0, 1),
+    category_order = ifelse(
+      category == "",
+      "",
+      as.character(factor(category, levels = ord_category))
+    ),
+    type_display = ifelse(category == "", group, "")
   ) %>%
-  arrange(order_group, order_sub, category)
+  arrange(order_group, order_sub, category_order)
 
 k <- final_table %>%
-  select(group, category, events, perc_total, affected, death) %>%
+  mutate(perc_total = sprintf("%.2f", perc_total)) %>%
+  select(type_display, category, events, perc_total, affected, death) %>%
   kable(
     "latex", booktabs = TRUE,
     align = "llcccc",
-    col.names = c("Type", "Subcategory", "Events", "\\# % Total",
+    col.names = c("Type", "Subcategory", "Events", "\\% Total events",
                   "Affected rate (Mean, SD)", "Death rate (Mean, SD)")
   ) %>%
   kable_styling(latex_options = "HOLD_position")
@@ -302,6 +315,7 @@ idx_indent <- which(final_table$category != "" & final_table$group != "All")
 
 k <- k %>%
   row_spec(idx_bold, bold = TRUE) %>%
-  add_indent(idx_indent)
+  add_indent(idx_indent) %>%
+  row_spec(idx_bold, extra_latex_after = "\\addlinespace") 
 
-save_kable(k, paths$out_tab)
+save_kable(k, here(paths$out_tab, "table_A1_summary_statistics.tex"))

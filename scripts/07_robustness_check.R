@@ -291,7 +291,7 @@ g_hazard_t10 <- ggplot(df_h10, aes(x = disaster, y = estimate, color = color_key
     strip.text = element_text(size = 15)
   )
 
-ggsave(filename = here(paths$out_root, "effects_by_hazard_t10.png"), plot = g_hazard_t10, width = 10, height = 8)
+ggsave(filename = here(paths$out_root, "figure_A1_hazard_type_t10.png"), plot = g_hazard_t10, width = 10, height = 8)
 
 g_hazard_t10
 
@@ -318,7 +318,7 @@ g_win_affected_t10_climate <- graph_windows(
   event_t   = 10,
   color     = "black",
   y_limits  = ylims_win_t10,
-  save_path = here(paths$out_root, "window_affected_std_climate_t10.png")
+  save_path = here(paths$out_root, "figure_A3a_windows_affected_climate_t10.png")
 )
 
 g_win_death_t10_climate <- graph_windows(
@@ -328,7 +328,7 @@ g_win_death_t10_climate <- graph_windows(
   event_t   = 10,
   color     = "darkblue", 
   y_limits  = ylims_win_t10,
-  save_path = here(paths$out_root, "window_death_std_climate_t10.png")
+  save_path = here(paths$out_root, "figure_A3b_windows_death_climate_t10.png")
 )
 
 g_win_affected_t10_climate
@@ -355,7 +355,7 @@ g_win_affected_t5_nonclimate <- graph_windows(
   event_t   = 5,
   color     = "grey",
   y_limits  = ylims_win_t5,
-  save_path = here(paths$out_root, "window_affected_std_nonclimate_t5.png")
+  save_path = here(paths$out_root, "figure_A2a_windows_affected_non_climate_t5.png")
 )
 
 g_win_death_t5_nonclimate <- graph_windows(
@@ -365,7 +365,7 @@ g_win_death_t5_nonclimate <- graph_windows(
   event_t   = 5,
   color     = "#7FBADC", 
   y_limits  = ylims_win_t5,
-  save_path = here(paths$out_root, "window_death_std_nonclimate_t5.png")
+  save_path = here(paths$out_root, "figure_A2b_windows_death_non_climate_t5.png")
 )
 
 g_win_affected_t5_nonclimate
@@ -390,7 +390,7 @@ g_win_affected_t10_nonclimate <- graph_windows(
   event_t   = 10,
   color     = "grey",
   y_limits  = ylims_win_t10,
-  save_path = here(paths$out_root, "window_affected_std_nonclimate_t10.png")
+  save_path = here(paths$out_root, "figure_A4a_windows_affected_non_climate_t10.png")
 )
 
 g_win_death_t10_nonclimate <- graph_windows(
@@ -400,7 +400,7 @@ g_win_death_t10_nonclimate <- graph_windows(
   event_t   = 10,
   color     = "#7FBADC", 
   y_limits  = ylims_win_t10,
-  save_path = here(paths$out_root, "window_death_std_nonclimate_t10.png")
+  save_path = here(paths$out_root, "figure_A4b_windows_death_non_climate_t10.png")
 )
 
 g_win_affected_t10_nonclimate
@@ -430,7 +430,7 @@ g_income_affected_t10_climate <- graph_income(
   event_t    = 10,
   color      = "black",
   y_limits   = ylims_income_t10,
-  save_path  = here(paths$out_root, "income_affected_climate_t10.png")
+  save_path  = here(paths$out_root, "figure_A6a_income_affected_climate_t10.png")
 )
 
 #Death (t = 10)
@@ -441,7 +441,7 @@ g_income_death_t10_climate <- graph_income(
   event_t    = 10,
   color      = "darkblue",   
   y_limits   = ylims_income_t10,
-  save_path  = here(paths$out_root, "income_death_climate_t10.png")
+  save_path  = here(paths$out_root, "figure_A6b_income_death_climate_t10.png")
 )
 
 
@@ -469,7 +469,7 @@ g_income_affected_t5_nonclimate <- graph_income(
   event_t    = 5,
   color      = "gray",
   y_limits   = ylims_income_t5,
-  save_path  = here(paths$out_root, "income_affected_nonclimate_t5.png")
+  save_path  = here(paths$out_root, "figure_A5a_income_affected_non_climate_t5.png")
 )
 
 #Death (t = 5)
@@ -480,7 +480,7 @@ g_income_death_t5_nonclimate <- graph_income(
   event_t    = 5,
   color      = "#7FBADC", 
   y_limits   = ylims_income_t5,
-  save_path  = here(paths$out_root, "income_death_nonclimate_t5.png")
+  save_path  = here(paths$out_root, "figure_A5b_income_death_non_climate_t5.png")
 )
 
 
@@ -507,7 +507,7 @@ g_income_affected_t10_nonclimate <- graph_income(
   event_t    = 10,
   color      = "gray",
   y_limits   = ylims_income_t10,
-  save_path  = here(paths$out_root, "income_affected_nonclimate_t10.png")
+  save_path  = here(paths$out_root, "figure_A7a_income_affected_non_climate_t10.png")
 )
 
 #Death (t = 10)
@@ -518,7 +518,7 @@ g_income_death_t10_nonclimate <- graph_income(
   event_t    = 10,
   color      = "#7FBADC", 
   y_limits   = ylims_income_t10,
-  save_path  = here(paths$out_root, "income_death_nonclimate_t10.png")
+  save_path  = here(paths$out_root, "figure_A7b_income_death_non_climate_t10.png")
 )
 
 g_income_affected_t10_nonclimate
@@ -531,6 +531,11 @@ g_income_death_t10_nonclimate
 windows_tbl <- df_win %>%
   distinct(window_start, window_end) %>%
   arrange(window_start, window_end)
+
+letters_needed <- nrow(windows_tbl) * 2
+if (letters_needed > length(letters)) {
+  stop("Not enough letters to label rolling windows. Increase label scheme.")
+}
 
 for (i in seq_len(nrow(windows_tbl))) {
   
@@ -551,7 +556,9 @@ for (i in seq_len(nrow(windows_tbl))) {
   # compute shared limits for the pair (affected plot + death plot) within this window
   ylims_w <- compute_y_limits_from_df(df_w, treatments = tset, step = 0.005)
   
-  tag_window <- paste0(ws, "_", we)
+  tag_window <- paste0(ws, "-", we)
+  letter_aff <- letters[(i - 1) * 2 + 1]
+  letter_dth <- letters[(i - 1) * 2 + 2]
   
   # affected
   plot_event_study_dual_from_df(
@@ -561,7 +568,10 @@ for (i in seq_len(nrow(windows_tbl))) {
     label1 = "Climate", label2 = "Non-climate",
     color1 = "black", color2 = "gray",
     y_limits = ylims_w,
-    save_path = here(paths$out_root, paste0("win_", tag_window, "_affected.png"))
+    save_path = here(
+      paths$out_root,
+      paste0("figure_A8", letter_aff, "_windows_", tag_window, "_affected.png")
+    )
   )
   
   # death
@@ -572,7 +582,10 @@ for (i in seq_len(nrow(windows_tbl))) {
     label1 = "Climate", label2 = "Non-climate",
     color1 = "darkblue", color2 = "#7FBADC",
     y_limits = ylims_w,
-    save_path = here(paths$out_root, paste0("win_", tag_window, "_death.png"))
+    save_path = here(
+      paths$out_root,
+      paste0("figure_A8", letter_dth, "_windows_", tag_window, "_death.png")
+    )
   )
 }
 
@@ -598,8 +611,23 @@ df_hazard_tagged <- df_hazard %>%
   )
 
 hazard_tbl <- df_hazard_tagged %>%
-  distinct(hazard) %>%
-  arrange(hazard)
+  distinct(hazard)
+
+hazard_levels <- c(
+  "Cold Wave",
+  "Drought",
+  "Heat Wave",
+  "Hydrological",
+  "Storm",
+  "Wildfire",
+  "Biological",
+  "Geophysical"
+)
+
+hazard_tbl <- hazard_tbl %>%
+  mutate(hazard = factor(hazard, levels = hazard_levels)) %>%
+  arrange(hazard) %>%
+  filter(!is.na(hazard))
 
 colors_climate <- list(
   affected = "black",
@@ -611,6 +639,11 @@ colors_nonclimate <- list(
   death    = "#7FBADC"
 )
 
+
+letters_needed <- nrow(hazard_tbl) * 2
+if (letters_needed > length(letters)) {
+  stop("Not enough letters to label hazard plots. Increase label scheme.")
+}
 
 for (i in seq_len(nrow(hazard_tbl))) {
   
@@ -647,12 +680,18 @@ for (i in seq_len(nrow(hazard_tbl))) {
   
   hz_tag <- hz %>% str_replace_all(" ", "_") %>% str_to_lower()
   
+  letter_aff <- letters[(i - 1) * 2 + 1]
+  letter_dth <- letters[(i - 1) * 2 + 2]
+
   plot_event_study_single_from_df(
     df = df_hz,
     trt = tr_aff,
     color = col_aff,
     y_limits = ylims_hz,
-    save_path = here(paths$out_root, paste0("hazard_", hz_tag, "_affected.png"))
+    save_path = here(
+      paths$out_root,
+      paste0("figure_A9", letter_aff, "_hazard_", hz_tag, "_affected.png")
+    )
   )
   
   plot_event_study_single_from_df(
@@ -660,7 +699,10 @@ for (i in seq_len(nrow(hazard_tbl))) {
     trt = tr_dth,
     color = col_dth,
     y_limits = ylims_hz,
-    save_path = here(paths$out_root, paste0("hazard_", hz_tag, "_death.png"))
+    save_path = here(
+      paths$out_root,
+      paste0("figure_A9", letter_dth, "_hazard_", hz_tag, "_death.png")
+    )
   )
 }
 
@@ -669,8 +711,19 @@ for (i in seq_len(nrow(hazard_tbl))) {
 # -----------------------------------------------------------------------------#
 
 income_tbl <- df_income %>%
-  distinct(subgroup) %>%
-  arrange(subgroup)
+  distinct(subgroup)
+
+income_levels <- c("Poor", "Rich")
+
+income_tbl <- income_tbl %>%
+  mutate(subgroup = factor(subgroup, levels = income_levels)) %>%
+  arrange(subgroup) %>%
+  filter(!is.na(subgroup))
+
+letters_needed <- nrow(income_tbl) * 2
+if (letters_needed > length(letters)) {
+  stop("Not enough letters to label income plots. Increase label scheme.")
+}
 
 for (i in seq_len(nrow(income_tbl))) {
   
@@ -699,6 +752,9 @@ for (i in seq_len(nrow(income_tbl))) {
     str_replace_all(" ", "_") %>%
     str_to_lower()
   
+  letter_aff <- letters[(i - 1) * 2 + 1]
+  letter_dth <- letters[(i - 1) * 2 + 2]
+
   plot_event_study_dual_from_df(
     df = df_sg,
     treatment1 = "ln_affected_rate_climate_std",
@@ -706,7 +762,10 @@ for (i in seq_len(nrow(income_tbl))) {
     label1 = "Climate", label2 = "Non-climate",
     color1 = "black", color2 = "gray",
     y_limits = ylims_sg,
-    save_path = here(paths$out_root, paste0("income_", sg_tag, "_affected.png"))
+    save_path = here(
+      paths$out_root,
+      paste0("figure_A10", letter_aff, "_", sg_tag, "_affected.png")
+    )
   )
   
   plot_event_study_dual_from_df(
@@ -716,7 +775,10 @@ for (i in seq_len(nrow(income_tbl))) {
     label1 = "Climate", label2 = "Non-climate",
     color1 = "darkblue", color2 = "#7FBADC",
     y_limits = ylims_sg,
-    save_path = here(paths$out_root, paste0("income_", sg_tag, "_death.png"))
+    save_path = here(
+      paths$out_root,
+      paste0("figure_A10", letter_dth, "_", sg_tag, "_death.png")
+    )
   )
 }
 

@@ -120,7 +120,7 @@ All variable definitions, transformations, and standardizations used in the anal
     Tested on **Windows 11 x64**. The code is expected to be operating-system independent.
 
 -   **R package management**:\
-    All required R packages are loaded within scripts using `pacman::p_load()`. No manual package installation is required.
+    This project uses `renv` with a lockfile (`renv.lock`) to pin package versions. The master script activates the project and restores the lockfile on first run, then loads packages using `pacman::p_load()`. No manual package installation is required.
 
 Key packages used in the analysis include:
 
@@ -187,11 +187,11 @@ The code was last run on a personal laptop with the following specifications:
 
 1.  Download all the necessary raw data following the instructions in the *Details on each Data Source* section
 
-2.  Open the R project or set the working directory to the root of the repository.
+2.  Open the R project or set the working directory to the root of the repository (this ensures the `renv` project library is used).
 
-3.  Run the full replication pipeline: `source("scripts/00_run_all.R")`
+3.  Run the full replication pipeline: `source("scripts/00_run_all.R")` (this will activate `renv` and restore packages if needed)
 
-## List of tables and programs
+## List of tables and figures
 
 The provided code reproduces:
 
@@ -199,25 +199,25 @@ The provided code reproduces:
 -   [x] All tables and figures in the paper
 -   [ ] Selected tables and figures in the paper, as explained and justified below.
 
-| Figure/Table \# | Program                          | Line Number |
-|-----------------|----------------------------------|-------------|
-| Figure 1        | `scripts/04_descriptives.R`      | 96-111      |
-| Figure 2        | `scripts/04_descriptives.R`      | 159-212     |
-| Figure 3        | `scripts/06_event_study_plots.R` | 221-243     |
-| Figure 4        | `scripts/06_event_study_plots.R` | 280-310     |
-| Figure 5        | `scripts/06_event_study_plots.R` | 331-349     |
-| Figure 6        | `scripts/06_event_study_plots.R` | 370-389     |
-| Table A.1       | `scripts/04_descriptives.R`      | 274-288     |
-| Figure A.1      | `scripts/07_robustness_check.R`  | 262-292     |
-| Figure A.2      | `scripts/07_robustness_check.R`  | 351-369     |
-| Figure A.3      | `scripts/07_robustness_check.R`  | 314-332     |
-| Figure A.4      | `scripts/07_robustness_check.R`  | 386-404     |
-| Figure A.5      | `scripts/07_robustness_check.R`  | 465-484     |
-| Figure A.6      | `scripts/07_robustness_check.R`  | 426-445     |
-| Figure A.7      | `scripts/07_robustness_check.R`  | 503-522     |
-| Figure A.8      | `scripts/07_robustness_check.R`  | 557-575     |
-| Figure A.9      | `scripts/07_robustness_check.R`  | 650-664     |
-| Figure A.10     | `scripts/07_robustness_check.R`  | 702-719     |
+| Figure/Table \# | Program                          | Line Number | Output file name(s) |
+|-----------------|----------------------------------|-------------|---------------------|
+| Figure 1        | `scripts/04_descriptives.R`      | 101-111     | `figure_1_fertility_trends.png` |
+| Figure 2        | `scripts/04_descriptives.R`      | 160-211     | `figure_2a_total_climate.png` to `figure_2f_death_non_climate.png` |
+| Figure 3        | `scripts/06_event_study_plots.R` | 221-243     | `figure_3a_affected_effect.png`, `figure_3b_death_effect.png` |
+| Figure 4        | `scripts/06_event_study_plots.R` | 248-312     | `figure_4_hazard_type_t5.png` |
+| Figure 5        | `scripts/06_event_study_plots.R` | 331-349     | `figure_5a_windows_affected_climate_t5.png`, `figure_5b_windows_death_climate_t5.png` |
+| Figure 6        | `scripts/06_event_study_plots.R` | 369-389     | `figure_6a_income_affected_climate_t5.png`, `figure_6b_income_death_climate_t5.png` |
+| Table A.1       | `scripts/04_descriptives.R`      | 302-321     | `table_A1_summary_statistics.tex` |
+| Figure A.1      | `scripts/07_robustness_check.R`  | 262-294     | `figure_A1_hazard_type_t10.png` |
+| Figure A.2      | `scripts/07_robustness_check.R`  | 338-369     | `figure_A2a_windows_affected_non_climate_t5.png`, `figure_A2b_windows_death_non_climate_t5.png` |
+| Figure A.3      | `scripts/07_robustness_check.R`  | 314-331     | `figure_A3a_windows_affected_climate_t10.png`, `figure_A3b_windows_death_climate_t10.png` |
+| Figure A.4      | `scripts/07_robustness_check.R`  | 374-404     | `figure_A4a_windows_affected_non_climate_t10.png`, `figure_A4b_windows_death_non_climate_t10.png` |
+| Figure A.5      | `scripts/07_robustness_check.R`  | 451-483     | `figure_A5a_income_affected_non_climate_t5.png`, `figure_A5b_income_death_non_climate_t5.png` |
+| Figure A.6      | `scripts/07_robustness_check.R`  | 413-444     | `figure_A6a_income_affected_climate_t10.png`, `figure_A6b_income_death_climate_t10.png` |
+| Figure A.7      | `scripts/07_robustness_check.R`  | 490-521     | `figure_A7a_income_affected_non_climate_t10.png`, `figure_A7b_income_death_non_climate_t10.png` |
+| Figure A.8      | `scripts/07_robustness_check.R`  | 527-590     | `figure_A8a_windows_1950-1970_affected.png` to `figure_A8x_windows_2005-2023_death.png` |
+| Figure A.9      | `scripts/07_robustness_check.R`  | 592-706     | `figure_A9a_hazard_cold_wave_affected.png` to `figure_A9p_hazard_geophysical_death.png` |
+| Figure A.10     | `scripts/07_robustness_check.R`  | 709-781     | `figure_A10a_income_low_income_affected.png` to `figure_A10d_income_high_income_death.png` |
 
 ## References
 

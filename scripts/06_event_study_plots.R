@@ -227,7 +227,7 @@ g_main_affected <- graph_main(
   label1 = "Climate",
   label2 = "Non-climate",
   y_limits = ylims_main,
-  save_path = here(paths$out_fig, "didn_ln_affected_rate_std_comparison.png")
+  save_path = here(paths$out_fig, "figure_3a_affected_effect.png")
 )
 
 g_main_death <- graph_main(
@@ -239,7 +239,7 @@ g_main_death <- graph_main(
   label1 = "Climate",
   label2 = "Non-climate",
   y_limits = ylims_main,
-  save_path = here(paths$out_fig, "didn_ln_death_rate_std_comparison.png")
+  save_path = here(paths$out_fig, "figure_3b_death_effect.png")
 )
 
 g_main_affected
@@ -309,7 +309,7 @@ g_hazard_t5 <- ggplot(df_h5, aes(x = disaster, y = estimate, color = color_key))
     strip.text = element_text(size = 15)
   )
 
-ggsave(filename = here(paths$out_fig, "effects_by_hazard_t5.png"), plot = g_hazard_t5, width = 10, height = 8)
+ggsave(filename = here(paths$out_fig, "figure_4_hazard_type_t5.png"), plot = g_hazard_t5, width = 10, height = 8)
 
 g_hazard_t5
 
@@ -335,7 +335,7 @@ g_win_affected_t5_climate <- graph_windows(
   event_t   = 5,
   color     = "black",
   y_limits  = ylims_win_t5,
-  save_path = here(paths$out_fig, "window_affected_std_climate_t5.png")
+  save_path = here(paths$out_fig, "figure_5a_windows_affected_climate_t5.png")
 )
 
 g_win_death_t5_climate <- graph_windows(
@@ -345,7 +345,7 @@ g_win_death_t5_climate <- graph_windows(
   event_t   = 5,
   color     = "darkblue", 
   y_limits  = ylims_win_t5,
-  save_path = here(paths$out_fig, "window_death_std_climate_t5.png")
+  save_path = here(paths$out_fig, "figure_5b_windows_death_climate_t5.png")
 )
 
 g_win_affected_t5_climate
@@ -374,7 +374,7 @@ g_income_affected_t5_climate <- graph_income(
   event_t    = 5,
   color      = "black",
   y_limits   = ylims_income_t5,
-  save_path  = here(paths$out_fig, "income_affected_climate_t5.png")
+  save_path  = here(paths$out_fig, "figure_6a_income_affected_climate_t5.png")
 )
 
 #Death (t = 5)
@@ -385,7 +385,7 @@ g_income_death_t5_climate <- graph_income(
   event_t    = 5,
   color      = "darkblue",   # dark red
   y_limits   = ylims_income_t5,
-  save_path  = here(paths$out_fig, "income_death_climate_t5.png")
+  save_path  = here(paths$out_fig, "figure_6b_income_death_climate_t5.png")
 )
 
 
